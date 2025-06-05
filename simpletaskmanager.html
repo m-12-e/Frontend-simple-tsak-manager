@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Task Manager</title>
+    <!-- Google Fonts - Inter for a clean modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" xintegrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR3gG5B6Z6/Qz5a0yC6j9wRz0u2E1z8z7sQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Custom CSS variables for easier theming */
+        :root {
+            --primary-purple: #8B5CF6; /* Tailwind purple-500 */
+            --primary-indigo: #4F46E5; /* Tailwind indigo-600 */
+            --text-gray-800: #1F2937;
+            --text-gray-700: #374151;
+            --text-gray-500: #6B7280;
+            --bg-white: #FFFFFF;
+            --bg-gray-50: #F9FAFB;
+            --bg-gray-200: #E5E7EB;
+            --bg-green-100: #D1FAE5;
+            --border-gray-300: #D1D5DB;
+            --border-indigo-200: #C7D2FE;
+            --border-green-500: #10B981;
+            --button-indigo-600: #4F46E5;
+            --button-indigo-700: #4338CA;
+            --button-red-500: #EF4444;
+            --button-red-600: #DC2626;
+            --button-green-500: #22C55E;
+            --button-green-600: #16A34A;
+            --button-yellow-500: #F59E0B;
+            --button-yellow-600: #D97706;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-2xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: linear-gradient(to bottom right, var(--primary-purple), var(--primary-indigo));
+        }
+
+        .container {
+            background-color: var(--bg-white);
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: var(--shadow-2xl);
+            padding: 2rem; /* p-8 */
+            width: 100%;
+            max-width: 32rem; /* max-w-lg */
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+
+        h1 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: var(--text-gray-800);
+            margin-bottom: 2rem; /* mb-8 */
+            text-align: center;
+        }
+
+        .add-task-form {
+            margin-bottom: 2rem; /* mb-8 */
+        }
+
+        .add-task-flex {
+            display: flex;
+            flex-direction: column; /* flex-col */
+            gap: 1rem; /* gap-4 */
+        }
+
+        @media (min-width: 640px) { /* sm breakpoint */
+            .add-task-flex {
+                flex-direction: row; /* sm:flex-row */
+            }
+        }
+
+        .add-task-input {
+            flex-grow: 1; /* flex-grow */
+            padding: 0.75rem; /* p-3 */
+            border: 2px solid var(--border-gray-300); /* border-2 border-gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            outline: none;
+            font-size: 1.125rem; /* text-lg */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .add-task-input:focus {
+            border-color: var(--primary-indigo); /* focus:border-indigo-500 */
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5); /* focus:ring-2 focus:ring-indigo-500 */
+        }
+
+        .add-task-button {
+            padding: 0.75rem 1.5rem; /* px-6 py-3 */
+            background-color: var(--button-indigo-600);
+            color: var(--bg-white);
+            font-weight: 600; /* font-semibold */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: var(--shadow-md);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+
+        .add-task-button:hover {
+            background-color: var(--button-indigo-700);
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+
+        .add-task-button:focus {
+            box-shadow: 0 0 0 2px var(--primary-indigo), 0 0 0 4px rgba(79, 70, 229, 0.5); /* focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 */
+        }
+
+        .validation-message {
+            color: var(--button-red-500);
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.5rem; /* mt-2 */
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem; /* mb-6 */
+            gap: 0.75rem; /* space-x-3 */
+        }
+
+        .filter-button {
+            padding: 0.5rem 1rem; /* px-4 py-2 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 500; /* font-medium */
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+
+        .filter-button.active {
+            background-color: var(--button-indigo-600);
+            color: var(--bg-white);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .filter-button:not(.active) {
+            background-color: var(--bg-gray-200);
+            color: var(--text-gray-700);
+        }
+
+        .filter-button:not(.active):hover {
+            background-color: var(--border-gray-300); /* hover:bg-gray-300 */
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* space-y-4 */
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem; /* p-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: var(--shadow-md);
+            transition: background-color 0.3s ease, border-left-color 0.3s ease;
+        }
+
+        .task-item.completed {
+            background-color: var(--bg-green-100);
+            border-left: 4px solid var(--border-green-500); /* border-l-4 border-green-500 */
+        }
+
+        .task-item:not(.completed) {
+            background-color: var(--bg-gray-50);
+            border-left: 4px solid var(--border-indigo-200); /* border-l-4 border-indigo-200 */
+        }
+
+        .task-title {
+            flex-grow: 1;
+            font-size: 1.125rem; /* text-lg */
+            word-break: break-word; /* break-words */
+            padding-right: 1rem; /* pr-4 */
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            color: var(--text-gray-500);
+        }
+
+        .task-title:not(.completed) {
+            color: var(--text-gray-800);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem; /* space-x-2 */
+        }
+
+        .action-button {
+            padding: 0.5rem; /* p-2 */
+            border-radius: 9999px; /* rounded-full */
+            color: var(--bg-white);
+            box-shadow: var(--shadow-md);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+            display: flex; /* For centering Font Awesome icon */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-button:hover {
+            transform: scale(1.1); /* hover:scale-110 */
+        }
+
+        .action-button.complete {
+            background-color: var(--button-green-500);
+        }
+        .action-button.complete:hover {
+            background-color: var(--button-green-600);
+        }
+        .action-button.pending {
+            background-color: var(--button-yellow-500);
+        }
+        .action-button.pending:hover {
+            background-color: var(--button-yellow-600);
+        }
+        .action-button.delete {
+            background-color: var(--button-red-500);
+        }
+        .action-button.delete:hover {
+            background-color: var(--button-red-600);
+        }
+        .action-button.delete:focus {
+            box-shadow: 0 0 0 2px var(--button-red-500), 0 0 0 4px rgba(239, 68, 68, 0.5);
+        }
+
+        .empty-tasks-message {
+            text-align: center;
+            color: var(--text-gray-500);
+            font-size: 1.125rem; /* text-lg */
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Task Manager</h1>
+
+        <form class="add-task-form" id="addTaskForm">
+            <div class="add-task-flex">
+                <input type="text" class="add-task-input" id="newTaskInput" placeholder="Add a new task...">
+                <button type="submit" class="add-task-button">Add Task</button>
+            </div>
+            <p class="validation-message" id="validationMessage"></p>
+        </form>
+
+        <div class="filter-buttons">
+            <button class="filter-button active" data-filter="all">All</button>
+            <button class="filter-button" data-filter="active">Active</button>
+            <button class="filter-button" data-filter="completed">Completed</button>
+        </div>
+
+        <ul class="task-list" id="taskList">
+            <!-- Tasks will be injected here by JavaScript -->
+        </ul>
+    </div>
+
+    <script>
+        // Array to store tasks, initialized with example data
+        let tasks = [
+            { id: 1, title: 'Buy groceries', completed: false },
+            { id: 2, title: 'Read a book', completed: true },
+            { id: 3, title: 'Walk the dog', completed: false },
+        ];
+
+        let currentFilter = 'all'; // Default filter setting
+
+        // Get DOM elements
+        const addTaskForm = document.getElementById('addTaskForm');
+        const newTaskInput = document.getElementById('newTaskInput');
+        const validationMessage = document.getElementById('validationMessage');
+        const taskList = document.getElementById('taskList');
+        const filterButtons = document.querySelector('.filter-buttons');
+
+        /**
+         * Renders the tasks into the DOM based on the current filter.
+         */
+        const renderTasks = () => {
+            taskList.innerHTML = ''; // Clear existing tasks
+
+            // Filter tasks based on currentFilter
+            const filteredTasks = tasks.filter(task => {
+                if (currentFilter === 'active') {
+                    return !task.completed;
+                } else if (currentFilter === 'completed') {
+                    return task.completed;
+                }
+                return true; // 'all' filter
+            });
+
+            if (filteredTasks.length === 0) {
+                let message = '';
+                if (tasks.length === 0) {
+                    message = 'No tasks yet! Add one above.';
+                } else if (currentFilter === 'active') {
+                    message = 'No active tasks.';
+                } else if (currentFilter === 'completed') {
+                    message = 'No completed tasks.';
+                }
+                const emptyMessageElement = document.createElement('p');
+                emptyMessageElement.className = 'empty-tasks-message';
+                emptyMessageElement.textContent = message;
+                taskList.appendChild(emptyMessageElement);
+                return;
+            }
+
+            // Create and append task items
+            filteredTasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskItem.dataset.id = task.id; // Store ID on the element
+
+                taskItem.innerHTML = `
+                    <span class="task-title ${task.completed ? 'completed' : ''}">${task.title}</span>
+                    <div class="task-actions">
+                        <button class="action-button ${task.completed ? 'pending' : 'complete'}" title="${task.completed ? 'Mark as Pending' : 'Mark as Completed'}">
+                            <i class="fas ${task.completed ? 'fa-undo' : 'fa-check'}"></i>
+                        </button>
+                        <button class="action-button delete" title="Delete Task">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+
+                // Add event listeners directly to the buttons within the created task item
+                taskItem.querySelector('.action-button.complete, .action-button.pending').addEventListener('click', (e) => {
+                    toggleComplete(task.id);
+                });
+                taskItem.querySelector('.action-button.delete').addEventListener('click', (e) => {
+                    deleteTask(task.id);
+                });
+
+                taskList.appendChild(taskItem);
+            });
+        };
+
+        /**
+         * Adds a new task to the tasks array and re-renders the list.
+         * @param {Event} e - The form submission event.
+         */
+        const addTask = (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const title = newTaskInput.value.trim();
+
+            if (!title) {
+                validationMessage.textContent = 'Task title cannot be empty.';
+                return;
+            }
+
+            validationMessage.textContent = ''; // Clear validation message
+
+            // Generate a new unique ID
+            const newId = tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1;
+            const newTask = {
+                id: newId,
+                title: title,
+                completed: false,
+            };
+
+            tasks.push(newTask);
+            newTaskInput.value = ''; // Clear input field
+            renderTasks(); // Re-render the list
+        };
+
+        /**
+         * Toggles the completion status of a task.
+         * @param {number} id - The ID of the task to toggle.
+         */
+        const toggleComplete = (id) => {
+            tasks = tasks.map(task =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            );
+            renderTasks(); // Re-render the list to update styling
+        };
+
+        /**
+         * Deletes a task from the array.
+         * @param {number} id - The ID of the task to delete.
+         */
+        const deleteTask = (id) => {
+            tasks = tasks.filter(task => task.id !== id);
+            renderTasks(); // Re-render the list
+        };
+
+        // Event listeners
+        addTaskForm.addEventListener('submit', addTask);
+
+        filterButtons.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                // Remove 'active' class from all buttons
+                document.querySelectorAll('.filter-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                // Add 'active' class to the clicked button
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                renderTasks(); // Re-render tasks with new filter
+            }
+        });
+
+        // Initial render when the page loads
+        window.onload = renderTasks;
+    </script>
+</body>
+</html>
