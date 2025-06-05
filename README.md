@@ -30,4 +30,4 @@ let tasks=[
         {id:1,  title:'Walk the dog',  completed: false },
     ];
 
-If you were to expand this into a production application, you would typically integrate a backend API or use browser's local storage for data persistence.
+
